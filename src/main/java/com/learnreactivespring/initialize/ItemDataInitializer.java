@@ -4,6 +4,7 @@ import com.learnreactivespring.document.Item;
 import com.learnreactivespring.repository.ItemReactiveRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Component
 @Slf4j
+@Profile("!test")
 public class ItemDataInitializer implements CommandLineRunner {
 
     final ItemReactiveRepository itemRepository;
