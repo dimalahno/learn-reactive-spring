@@ -1,6 +1,5 @@
 package com.learnreactivespring.controller.v1;
 
-import com.learnreactivespring.constants.ItemConstants;
 import com.learnreactivespring.document.Item;
 import com.learnreactivespring.repository.ItemReactiveRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +20,7 @@ import reactor.test.StepVerifier;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.learnreactivespring.constants.ItemConstants.ITEM_END_POINT_V1;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
@@ -61,7 +61,7 @@ public class ItemControllerTest {
     @Test
     public void getAllItems() {
         testClient.get()
-                .uri(ItemConstants.ITEM_END_POINT_V1)
+                .uri(ITEM_END_POINT_V1)
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -72,7 +72,7 @@ public class ItemControllerTest {
     @Test
     public void getAllItems_approach2() {
         testClient.get()
-                .uri(ItemConstants.ITEM_END_POINT_V1)
+                .uri(ITEM_END_POINT_V1)
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -88,7 +88,7 @@ public class ItemControllerTest {
     @Test
     public void getAllItems_approach3() {
         Flux<Item> itemFlux = testClient.get()
-                .uri(ItemConstants.ITEM_END_POINT_V1)
+                .uri(ITEM_END_POINT_V1)
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -102,7 +102,7 @@ public class ItemControllerTest {
 
     @Test
     public void getOneItem() {
-        testClient.get().uri(ItemConstants.ITEM_END_POINT_V1.concat("/{id}"), "ABC")
+        testClient.get().uri(ITEM_END_POINT_V1.concat("/{id}"), "ABC")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -111,7 +111,7 @@ public class ItemControllerTest {
 
     @Test
     public void getOneItem_notFound() {
-        testClient.get().uri(ItemConstants.ITEM_END_POINT_V1.concat("/{id}"), "DEF")
+        testClient.get().uri(ITEM_END_POINT_V1.concat("/{id}"), "DEF")
                 .exchange()
                 .expectStatus().isNotFound();
     }
@@ -120,7 +120,7 @@ public class ItemControllerTest {
     public void createItem() {
         Item newItem = new Item(null, "Iphone X", 999.99);
 
-        testClient.post().uri(ItemConstants.ITEM_END_POINT_V1)
+        testClient.post().uri(ITEM_END_POINT_V1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(newItem), Item.class)
                 .exchange()
@@ -129,6 +129,14 @@ public class ItemControllerTest {
                 .jsonPath("$.id").isNotEmpty()
                 .jsonPath("$.description").isEqualTo("Iphone X")
                 .jsonPath("$.price").isEqualTo(999.99);
+    }
 
+    @Test
+    public void deleteItem() {
+        testClient.delete().uri(ITEM_END_POINT_V1.concat("/{id}"), "ABC")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Void.class);
     }
 }
