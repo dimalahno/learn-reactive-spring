@@ -43,4 +43,16 @@ public class ItemController {
     public Mono<Void> deleteItem(@PathVariable String id){
         return itemRepository.deleteById(id);
     }
+
+    @PutMapping(ITEM_END_POINT_V1+"/{id}")
+    public Mono<ResponseEntity<Item>> updateItem(@PathVariable String id, @RequestBody Item item) {
+        return itemRepository.findById(id)
+                .flatMap(currentItem -> {
+                    currentItem.setPrice(item.getPrice());
+                    currentItem.setDescription(item.getDescription());
+                    return itemRepository.save(currentItem);
+                })
+                .map(updatedItem -> new ResponseEntity<>(updatedItem, HttpStatus.OK))
+                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
 }
