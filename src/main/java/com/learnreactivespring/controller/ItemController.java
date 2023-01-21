@@ -15,6 +15,12 @@ import static com.learnreactivespring.constants.ItemConstants.ITEM_END_POINT_V1;
 @Slf4j
 public class ItemController {
 
+    @ExceptionHandler
+    public ResponseEntity<String> handleRuntimeException(RuntimeException exception) {
+        log.error("Exception caught in handleRuntimeException : {} ", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
+    }
+
     final ItemReactiveRepository itemRepository;
 
     public ItemController(ItemReactiveRepository itemRepository) {
@@ -54,5 +60,11 @@ public class ItemController {
                 })
                 .map(updatedItem -> new ResponseEntity<>(updatedItem, HttpStatus.OK))
                 .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping(ITEM_END_POINT_V1+"/runtimeException")
+    public Flux<Item> runtimeException() {
+        return itemRepository.findAll()
+                .concatWith(Mono.error(new RuntimeException("RuntimeException occurred!")));
     }
 }
