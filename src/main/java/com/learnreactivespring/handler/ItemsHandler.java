@@ -1,6 +1,8 @@
 package com.learnreactivespring.handler;
 
 import com.learnreactivespring.document.Item;
+import com.learnreactivespring.document.ItemCapped;
+import com.learnreactivespring.repository.ItemCappedReactiveRepository;
 import com.learnreactivespring.repository.ItemReactiveRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -11,6 +13,7 @@ import java.net.URI;
 
 import static com.learnreactivespring.constants.ItemConstants.ITEM_FUNCTIONAL_END_POINT_V1;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 
 @Component
@@ -20,9 +23,12 @@ public class ItemsHandler {
     private final String ID = "id";
 
     final ItemReactiveRepository repository;
+    final ItemCappedReactiveRepository cappedReactiveRepository;
 
-    public ItemsHandler(ItemReactiveRepository repository) {
+    public ItemsHandler(ItemReactiveRepository repository,
+                        ItemCappedReactiveRepository cappedReactiveRepository) {
         this.repository = repository;
+        this.cappedReactiveRepository = cappedReactiveRepository;
     }
 
     public Mono<ServerResponse> getAllItems(ServerRequest request) {
@@ -70,5 +76,10 @@ public class ItemsHandler {
 
     public  Mono<ServerResponse> handleRuntimeExceptions(ServerRequest request) {
         throw new RuntimeException("RuntimeException occurred!");
+    }
+
+    public Mono<ServerResponse> itemsStream(ServerRequest request) {
+        return ServerResponse.ok().contentType(APPLICATION_STREAM_JSON)
+                .body(cappedReactiveRepository.findItemsBy(), ItemCapped.class);
     }
 }
